@@ -1,0 +1,96 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <span class="navbar-title">Daftar Calon Mahasiswa</span>
+      <div class="navbar-links">
+        <a th:href="@{/daftar-mahasiswa}">Form Pendaftaran</a>
+        <a th:href="@{/admin/pencarian}">Pencarian</a>
+        <a th:href="@{/admin/logout}">Logout</a>
+      </div>
+    </nav>
+
+    <!-- STATISTIK -->
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-number" th:text="${totalPendaftar}">0</div>
+        <div class="stat-label">Total Pendaftar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" th:text="${totalPending}">0</div>
+        <div class="stat-label">Menunggu Verifikasi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" th:text="${totalVerified}">0</div>
+        <div class="stat-label">Terverifikasi</div>
+      </div>
+    </div>
+
+    <!-- TABEL MAHASISWA -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nama Lengkap</th>
+            <th>NIM</th>
+            <th>Prodi</th>
+            <th>Tanggal Daftar</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="m, stat : ${daftarMahasiswa}">
+            <td th:text="${stat.count}">1</td>
+            <td th:text="${m.namaLengkap}">-</td>
+            <td th:text="${m.nim}">-</td>
+            <td th:text="${m.programStudi}">-</td>
+            <td th:text="${m.tanggalDaftar}">-</td>
+            <td>
+              <span th:if="${m.status == 'PENDING'}" class="badge badge-pending"
+                >PENDING</span
+              >
+              <span
+                th:if="${m.status == 'VERIFIED'}"
+                class="badge badge-verified"
+                >VERIFIED</span
+              >
+              <span
+                th:if="${m.status == 'REJECTED'}"
+                class="badge badge-rejected"
+                >REJECTED</span
+              >
+            </td>
+            <td>
+              <!-- Tombol verifikasi hanya muncul jika status PENDING -->
+              <a
+                th:if="${m.status == 'PENDING'}"
+                th:href="@{/admin/verifikasi/{id}(id=${m.id})}"
+                class="btn-verifikasi"
+                >Verifikasi</a
+              >
+              <span th:if="${m.status != 'PENDING'}">-</span>
+            </td>
+          </tr>
+          <!-- Jika tidak ada data -->
+          <tr th:if="${#lists.isEmpty(daftarMahasiswa)}">
+            <td
+              colspan="7"
+              style="text-align: center; color: #888; padding: 20px"
+            >
+              Belum ada data pendaftar
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Verifikasi Pendaftaran</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body>
+
+    <div class="verifikasi-container">
+        <h2 class="verifikasi-title">Verifikasi Pendaftaran</h2>
+
+        <!-- Info calon mahasiswa -->
+        <div class="verifikasi-info">
+            <table>
+                <tr>
+                    <td>Nama:</td>
+                    <td th:text="${mahasiswa.namaLengkap}">-</td>
+                </tr>
+                <tr>
+                    <td>NIM:</td>
+                    <td th:text="${mahasiswa.nim}">-</td>
+                </tr>
+                <tr>
+                    <td>Prodi:</td>
+                    <td th:text="${mahasiswa.programStudi}">-</td>
+                </tr>
+                <tr>
+                    <td>Status:</td>
+                    <td th:text="${mahasiswa.status}">-</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Form verifikasi -->
+        <form th:action="@{/admin/verifikasi/{id}(id=${mahasiswa.id})}" method="post">
+            <div class="form-group">
+                <label><strong>Status Verifikasi</strong></label>
+                <select name="statusVerifikasi" class="form-control">
+                <option value="">Pilih Status</option>
+                <option value="VERIFIED">Terverifikasi</option>
+                <option value="REJECTED">Ditolak</option>
+            </select>
+            </div>
+            <button type="submit" class="btn-proses">Proses Verifikasi</button>
+        </form>
+
+        <a th:href="@{/admin/dashboard}" class="btn-kembali-link">Kembali</a>
+    </div>
+
+</body>
+
+</html>

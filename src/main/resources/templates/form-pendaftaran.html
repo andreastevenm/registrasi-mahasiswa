@@ -1,0 +1,174 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pendaftaran Mahasiswa Baru</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body>
+    <div class="form-container">
+        <h1 class="form-title">Pendaftaran Mahasiswa Baru</h1>
+        <p class="form-subtitle">
+            Tahun Akademik: 2026/2027</span>
+        </p>
+
+        <form th:action="@{/daftar}" th:object="${mahasiswa}" method="post" id="formDaftar">
+            <!-- Hidden field captcha dari server -->
+            <input type="hidden" id="captchaSession" name="captchaSession" th:value="${captchaCode}" />
+
+            <!-- NAMA LENGKAP -->
+            <div class="form-group">
+                <label>Nama Lengkap *</label>
+                <input type="text" th:field="*{namaLengkap}" placeholder="Contoh: Muhammad Rizki" />
+                <div class="error-msg" th:if="${errorNama}">
+                    ⚠ <span th:text="${errorNama}"></span>
+                </div>
+                <div class="field-hint">
+                    ⚠ Nama Lengkap wajib diisi &nbsp;|&nbsp; Minimal 4 karakter (contoh: Budi, Siti)
+                </div>
+            </div>
+
+            <!-- NIM -->
+            <div class="form-group">
+                <label>NIM (Nomor Induk Mahasiswa) *</label>
+                <input type="text" th:field="*{nim}" placeholder="10 digit angka" maxlength="10" />
+                <div class="error-msg" th:if="${errorNim}">
+                    ⚠ <span th:text="${errorNim}"></span>
+                </div>
+                <div class="field-hint">
+                    ⚠ NIM wajib diisi &nbsp;|&nbsp; 10 digit angka, contoh: 2024000001
+                </div>
+            </div>
+
+            <!-- EMAIL -->
+            <div class="form-group">
+                <label>Alamat Email *</label>
+                <input type="email" th:field="*{email}" placeholder="contoh: nama@domain.com" />
+                <div class="error-msg" th:if="${errorEmail}">
+                    ⚠ <span th:text="${errorEmail}"></span>
+                </div>
+                <div class="field-hint">
+                    ⚠ Email wajib diisi &nbsp;|&nbsp; Gunakan email aktif untuk konfirmasi pendaftaran
+                </div>
+            </div>
+
+            <!-- NOMOR TELEPON -->
+            <div class="form-group">
+                <label>Nomor Telepon / WhatsApp *</label>
+                <input type="text" th:field="*{nomorTelepon}" placeholder="08123456789 atau 6281234567890" />
+                <div class="error-msg" th:if="${errorTelepon}">
+                    ⚠ <span th:text="${errorTelepon}"></span>
+                </div>
+                <div class="field-hint">
+                    ⚠ Nomor Telepon wajib diisi &nbsp;|&nbsp; Contoh: 081234567890 (10-13 digit), diawali 08 atau 62
+                </div>
+            </div>
+
+            <!-- TANGGAL LAHIR & PROGRAM STUDI (sejajar) -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tanggal Lahir *</label>
+                    <input type="date" th:field="*{tanggalLahir}" />
+                    <div class="error-msg" th:if="${errorTanggalLahir}">
+                        ⚠ <span th:text="${errorTanggalLahir}"></span>
+                    </div>
+                    <div class="field-hint">!</div>
+                </div>
+                <div class="form-group">
+                    <label>Program Studi *</label>
+                    <select th:field="*{programStudi}">
+              <option value="">Pilih Program Studi</option>
+              <option value="Teknik Informatika">Teknik Informatika</option>
+              <option value="Sistem Informasi">Sistem Informasi</option>
+              <option value="Manajemen">Manajemen</option>
+              <option value="Akuntansi">Akuntansi</option>
+              <option value="Bahasa Inggris">Bahasa Inggris</option>
+              <option value="Rekayasa Perangkat Lunak">
+                Rekayasa Perangkat Lunak
+              </option>
+            </select>
+                    <div class="field-hint">⚠ Mohon pilih program studi</div>
+                </div>
+            </div>
+
+            <!-- ALAMAT LENGKAP -->
+            <div class="form-group">
+                <label>Alamat Lengkap *</label>
+                <textarea th:field="*{alamatLengkap}" placeholder="Isi dengan alamat lengkap (jalan, nomor, RT/RW, kelurahan, kecamatan, kota)"></textarea>
+                <div class="error-msg" th:if="${errorAlamat}">
+                    ⚠ <span th:text="${errorAlamat}"></span>
+                </div>
+                <div class="field-hint">
+                    ⚠ Alamat wajib diisi &nbsp;|&nbsp; Minimal 15 karakter. Semakin detail semakin baik
+                </div>
+            </div>
+
+            <!-- ASAL SEKOLAH -->
+            <div class="form-group">
+                <label>Asal Sekolah *</label>
+                <input type="text" th:field="*{asalSekolah}" placeholder="Contoh: SMA Negeri 1 Jakarta" />
+                <div class="field-hint">⚠ Asal sekolah wajib diisi</div>
+            </div>
+
+            <!-- CAPTCHA -->
+            <div class="form-group">
+                <label>Kode Keamanan (Captcha) *</label>
+                <div class="captcha-box">
+                    <span class="captcha-text" id="captchaDisplay" th:text="${captchaCode}">ABCDE</span
+            >
+            <button
+              type="button"
+              class="btn-refresh"
+              onclick="refreshCaptcha()"
+            >
+              ↻ Refresh Captcha
+            </button>
+          </div>
+          <input
+            type="text"
+            name="captchaInput"
+            placeholder="Masukkan kode captcha di atas"
+          />
+          <div class="error-msg" th:if="${errorCaptcha}">
+            ⚠ <span th:text="${errorCaptcha}"></span>
+                </div>
+                <div class="field-hint">
+                    Kode tidak case sensitive, klik refresh jika(@#@)
+                </div>
+            </div>
+
+            <!-- TOMBOL DAFTAR -->
+            <button type="submit" class="btn-daftar">Daftar Sekarang</button>
+        </form>
+    </div>
+
+    <script>
+        // ===== CAPTCHA GENERATOR =====
+        // Karakter yang digunakan untuk captcha (mudah dibaca)
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+        function buatCaptchaBaru() {
+            let kode = "";
+            for (let i = 0; i < 6; i++) {
+                kode += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return kode;
+        }
+
+        function refreshCaptcha() {
+            const kode = buatCaptchaBaru();
+            document.getElementById("captchaDisplay").textContent = kode;
+            document.getElementById("captchaSession").value = kode;
+        }
+
+        // Buat captcha baru saat halaman pertama kali dibuka
+        window.onload = function() {
+            refreshCaptcha();
+        };
+    </script>
+</body>
+
+</html>

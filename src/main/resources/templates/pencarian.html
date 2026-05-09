@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Pencarian Pendaftar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <span class="navbar-title">Pencarian Pendaftar</span>
+        <div class="navbar-links">
+            <a th:href="@{/}">Form Pendaftaran</a>
+            <a th:href="@{/admin/dashboard}">Daftar Pendaftar</a>
+        </div>
+    </nav>
+
+    <div class="search-container">
+        <div class="search-title">🔍 Pencarian Pendaftar</div>
+
+        <form th:action="@{/admin/pencarian}" method="get">
+            <p><strong>Keyword (Nama/NIM)</strong></p>
+            <p th:text="${keyword}" style="color:#555; font-size:13px; margin-bottom:8px;"></p>
+            <div class="search-row">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Masukkan nama atau NIM..." />
+                <div class="form-group" style="margin:0">
+                    <p style="font-size:12px; font-weight:600; margin-bottom:4px;">Status</p>
+                    <select name="status">
+                    <option value="SEMUA" th:selected="${statusFilter == 'SEMUA'}">Semua Status</option>
+                    <option value="PENDING" th:selected="${statusFilter == 'PENDING'}">PENDING</option>
+                    <option value="VERIFIED" th:selected="${statusFilter == 'VERIFIED'}">VERIFIED</option>
+                    <option value="REJECTED" th:selected="${statusFilter == 'REJECTED'}">REJECTED</option>
+                </select>
+                </div>
+                <button type="submit" class="btn-cari">Cari Data</button>
+            </div>
+        </form>
+
+        <!-- Hasil pencarian -->
+        <div th:if="${hasil != null}">
+            <p class="hasil-label">
+                Hasil Pencarian: <span th:text="${jumlahHasil}">0</span> data ditemukan
+            </p>
+            <table th:if="${jumlahHasil > 0}">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>NIM</th>
+                        <th>Prodi</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${hasil}">
+                        <td th:text="${m.namaLengkap}">-</td>
+                        <td th:text="${m.nim}">-</td>
+                        <td th:text="${m.programStudi}">-</td>
+                        <td>
+                            <span th:if="${m.status == 'PENDING'}" class="badge badge-pending">PENDING</span>
+                            <span th:if="${m.status == 'VERIFIED'}" class="badge badge-verified">VERIFIED</span>
+                            <span th:if="${m.status == 'REJECTED'}" class="badge badge-rejected">REJECTED</span>
+                        </td>
+                        <td>
+                            <a th:if="${m.status == 'PENDING'}" th:href="@{/admin/verifikasi/{id}(id=${m.id})}" class="btn-verifikasi">Verifikasi</a>
+                            <span th:if="${m.status != 'PENDING'}">-</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- Tidak ada hasil -->
+            <p th:if="${jumlahHasil == 0}" style="color:#888; font-size:13px; margin-top:10px;">
+                Tidak ada data yang ditemukan.
+            </p>
+        </div>
+    </div>
+
+</body>
+
+</html>
