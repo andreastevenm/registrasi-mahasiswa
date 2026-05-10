@@ -108,3 +108,21 @@ src/
 Bila mengalami "Whitelabel Error" saat pendaftaran form, harap kembali kepada website sebelumnya dengan cara
 klik tanda panah balik (<-) pada kiri atas website lalu pastikan semua section sudah terisi dan setelah itu
 lakukan submit kembali.
+
+Troubleshooting
+
+- Aplikasi tidak bisa start / error koneksi database
+- Pastikan MySQL Server sedang berjalan
+- Cek username dan password di application.properties sudah benar
+- Pastikan database db_registrasi sudah dibuat
+
+Tidak bisa login admin
+
+- Pastikan sudah menjalankan perintah INSERT INTO admins ... setelah aplikasi pertama kali jalan
+- Cek data admin di MySQL: SELECT \* FROM admins;
+
+"Whitelabel Error" saat submit form
+
+- Klik tombol back (←) di browser
+- Pastikan semua field sudah terisi dengan benar
+- Coba submit kembali
