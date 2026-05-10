@@ -103,3 +103,8 @@ src/
 │       └── application.properties
 └── test/
 ```
+
+"PENTING UNTUK DIBACA"
+Bila mengalami "Whitelabel Error" saat pendaftaran form, harap kembali kepada website sebelumnya dengan cara
+klik tanda panah balik (<-) pada kiri atas website lalu pastikan semua section sudah terisi dan setelah itu
+lakukan submit kembali.
