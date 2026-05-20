@@ -1,85 +1,180 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pendaftaran Mahasiswa Baru</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
-</head>
+    <style>
+      .progress-wrapper {
+        background: #f0f4ff;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 28px;
+        border: 1.5px solid #dce6fb;
+      }
 
-<body>
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        color: #4f7df3;
+        margin-bottom: 8px;
+      }
+
+      .progress-bar-bg {
+        background: #dce6fb;
+        border-radius: 99px;
+        height: 10px;
+        overflow: hidden;
+      }
+
+      .progress-bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #4f7df3, #34d399);
+        transition: width 0.4s ease;
+        width: 0%;
+      }
+
+      .progress-hint {
+        font-size: 11.5px;
+        color: #888;
+        margin-top: 6px;
+      }
+      /* Tombol disabled style */
+
+      .btn-daftar:disabled {
+        background: #b0bec5;
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      .btn-daftar:not(:disabled) {
+        background: #4f7df3;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
     <div class="form-container">
-        <h1 class="form-title">Pendaftaran Mahasiswa Baru</h1>
-        <p class="form-subtitle">
-            Tahun Akademik: 2026/2027</span>
-        </p>
+      <h1 class="form-title">Pendaftaran Mahasiswa Baru</h1>
+      <p class="form-subtitle">Tahun Akademik: 2026/2027</p>
 
-        <form th:action="@{/daftar}" th:object="${mahasiswa}" method="post" id="formDaftar">
-            <!-- Hidden field captcha dari server -->
-            <input type="hidden" id="captchaSession" name="captchaSession" th:value="${captchaCode}" />
+      <!-- FITUR UNIK: Progress Bar Kelengkapan Form -->
+      <div class="progress-wrapper">
+        <div class="progress-label">
+          <span>📋 Kelengkapan Form</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-hint" id="progressHint">
+          Mulai mengisi form untuk melihat progress...
+        </div>
+      </div>
 
-            <!-- NAMA LENGKAP -->
-            <div class="form-group">
-                <label>Nama Lengkap *</label>
-                <input type="text" th:field="*{namaLengkap}" placeholder="Contoh: Muhammad Rizki" />
-                <div class="error-msg" th:if="${errorNama}">
-                    ⚠ <span th:text="${errorNama}"></span>
-                </div>
-                <div class="field-hint">
-                    ⚠ Nama Lengkap wajib diisi &nbsp;|&nbsp; Minimal 4 karakter (contoh: Budi, Siti)
-                </div>
+      <form
+        th:action="@{/daftar}"
+        th:object="${mahasiswa}"
+        method="post"
+        id="formDaftar"
+      >
+        <input
+          type="hidden"
+          id="captchaSession"
+          name="captchaSession"
+          th:value="${captchaCode}"
+        />
+
+        <!-- NAMA LENGKAP -->
+        <div class="form-group">
+          <label>Nama Lengkap *</label>
+          <input
+            type="text"
+            id="namaLengkap"
+            th:field="*{namaLengkap}"
+            placeholder="Contoh: Muhammad Rizki"
+          />
+          <div class="error-msg" th:if="${errorNama}">
+            ⚠ <span th:text="${errorNama}"></span>
+          </div>
+          <div class="field-hint">⚠ Minimal 4 karakter</div>
+        </div>
+
+        <!-- NIM -->
+        <div class="form-group">
+          <label>NIM *</label>
+          <input
+            type="text"
+            id="nim"
+            th:field="*{nim}"
+            placeholder="10 digit angka"
+            maxlength="10"
+          />
+          <div class="error-msg" th:if="${errorNim}">
+            ⚠ <span th:text="${errorNim}"></span>
+          </div>
+          <div class="field-hint">⚠ 10 digit angka, contoh: 2024000001</div>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="form-group">
+          <label>Alamat Email *</label>
+          <input
+            type="email"
+            id="email"
+            th:field="*{email}"
+            placeholder="contoh: nama@domain.com"
+          />
+          <div class="error-msg" th:if="${errorEmail}">
+            ⚠ <span th:text="${errorEmail}"></span>
+          </div>
+          <div class="field-hint">⚠ Gunakan email aktif</div>
+        </div>
+
+        <!-- NOMOR TELEPON -->
+        <div class="form-group">
+          <label>Nomor Telepon / WhatsApp *</label>
+          <input
+            type="text"
+            id="nomorTelepon"
+            th:field="*{nomorTelepon}"
+            placeholder="08123456789"
+          />
+          <div class="error-msg" th:if="${errorTelepon}">
+            ⚠ <span th:text="${errorTelepon}"></span>
+          </div>
+          <div class="field-hint">
+            ⚠ Diawali 08 atau 62, panjang 10-13 digit
+          </div>
+        </div>
+
+        <!-- TANGGAL LAHIR & PRODI -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tanggal Lahir *</label>
+            <!--
+                        FIX: gunakan th:value agar value tetap terisi saat validasi gagal.
+                        th:field akan override value, jadi kita pakai th:value + name manual.
+                    -->
+            <input
+              type="date"
+              id="tanggalLahir"
+              name="tanggalLahir"
+              th:value="${mahasiswa.tanggalLahir}"
+            />
+            <div class="error-msg" th:if="${errorTanggalLahir}">
+              ⚠ <span th:text="${errorTanggalLahir}"></span>
             </div>
-
-            <!-- NIM -->
-            <div class="form-group">
-                <label>NIM (Nomor Induk Mahasiswa) *</label>
-                <input type="text" th:field="*{nim}" placeholder="10 digit angka" maxlength="10" />
-                <div class="error-msg" th:if="${errorNim}">
-                    ⚠ <span th:text="${errorNim}"></span>
-                </div>
-                <div class="field-hint">
-                    ⚠ NIM wajib diisi &nbsp;|&nbsp; 10 digit angka, contoh: 2024000001
-                </div>
-            </div>
-
-            <!-- EMAIL -->
-            <div class="form-group">
-                <label>Alamat Email *</label>
-                <input type="email" th:field="*{email}" placeholder="contoh: nama@domain.com" />
-                <div class="error-msg" th:if="${errorEmail}">
-                    ⚠ <span th:text="${errorEmail}"></span>
-                </div>
-                <div class="field-hint">
-                    ⚠ Email wajib diisi &nbsp;|&nbsp; Gunakan email aktif untuk konfirmasi pendaftaran
-                </div>
-            </div>
-
-            <!-- NOMOR TELEPON -->
-            <div class="form-group">
-                <label>Nomor Telepon / WhatsApp *</label>
-                <input type="text" th:field="*{nomorTelepon}" placeholder="08123456789 atau 6281234567890" />
-                <div class="error-msg" th:if="${errorTelepon}">
-                    ⚠ <span th:text="${errorTelepon}"></span>
-                </div>
-                <div class="field-hint">
-                    ⚠ Nomor Telepon wajib diisi &nbsp;|&nbsp; Contoh: 081234567890 (10-13 digit), diawali 08 atau 62
-                </div>
-            </div>
-
-            <!-- TANGGAL LAHIR & PROGRAM STUDI (sejajar) -->
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Tanggal Lahir *</label>
-                    <input type="date" th:field="*{tanggalLahir}" />
-                    <div class="error-msg" th:if="${errorTanggalLahir}">
-                        ⚠ <span th:text="${errorTanggalLahir}"></span>
-                    </div>
-                    <div class="field-hint">!</div>
-                </div>
-                <div class="form-group">
-                    <label>Program Studi *</label>
-                    <select th:field="*{programStudi}">
+            <div class="field-hint">⚠ Minimal usia 18 tahun</div>
+          </div>
+          <div class="form-group">
+            <label>Program Studi *</label>
+            <select id="programStudi" th:field="*{programStudi}">
               <option value="">Pilih Program Studi</option>
               <option value="Teknik Informatika">Teknik Informatika</option>
               <option value="Sistem Informasi">Sistem Informasi</option>
@@ -90,85 +185,190 @@
                 Rekayasa Perangkat Lunak
               </option>
             </select>
-                    <div class="field-hint">⚠ Mohon pilih program studi</div>
-                </div>
-            </div>
+            <div class="field-hint">⚠ Pilih program studi</div>
+          </div>
+        </div>
 
-            <!-- ALAMAT LENGKAP -->
-            <div class="form-group">
-                <label>Alamat Lengkap *</label>
-                <textarea th:field="*{alamatLengkap}" placeholder="Isi dengan alamat lengkap (jalan, nomor, RT/RW, kelurahan, kecamatan, kota)"></textarea>
-                <div class="error-msg" th:if="${errorAlamat}">
-                    ⚠ <span th:text="${errorAlamat}"></span>
-                </div>
-                <div class="field-hint">
-                    ⚠ Alamat wajib diisi &nbsp;|&nbsp; Minimal 15 karakter. Semakin detail semakin baik
-                </div>
-            </div>
+        <!-- ALAMAT -->
+        <div class="form-group">
+          <label>Alamat Lengkap *</label>
+          <textarea
+            id="alamatLengkap"
+            th:field="*{alamatLengkap}"
+            placeholder="Isi dengan alamat lengkap..."
+          ></textarea>
+          <div class="error-msg" th:if="${errorAlamat}">
+            ⚠ <span th:text="${errorAlamat}"></span>
+          </div>
+          <div class="field-hint">⚠ Minimal 15 karakter</div>
+        </div>
 
-            <!-- ASAL SEKOLAH -->
-            <div class="form-group">
-                <label>Asal Sekolah *</label>
-                <input type="text" th:field="*{asalSekolah}" placeholder="Contoh: SMA Negeri 1 Jakarta" />
-                <div class="field-hint">⚠ Asal sekolah wajib diisi</div>
-            </div>
+        <!-- ASAL SEKOLAH -->
+        <div class="form-group">
+          <label>Asal Sekolah *</label>
+          <input
+            type="text"
+            id="asalSekolah"
+            th:field="*{asalSekolah}"
+            placeholder="Contoh: SMA Negeri 1 Jakarta"
+          />
+          <div class="field-hint">⚠ Asal sekolah wajib diisi</div>
+        </div>
 
-            <!-- CAPTCHA -->
-            <div class="form-group">
-                <label>Kode Keamanan (Captcha) *</label>
-                <div class="captcha-box">
-                    <span class="captcha-text" id="captchaDisplay" th:text="${captchaCode}">ABCDE</span
+        <!-- CAPTCHA -->
+        <div class="form-group">
+          <label>Kode Keamanan (Captcha) *</label>
+          <div class="captcha-box">
+            <span
+              class="captcha-text"
+              id="captchaDisplay"
+              th:text="${captchaCode}"
+              >ABCDE</span
             >
             <button
               type="button"
               class="btn-refresh"
               onclick="refreshCaptcha()"
             >
-              ↻ Refresh Captcha
+              ↻ Refresh
             </button>
           </div>
           <input
             type="text"
+            id="captchaInput"
             name="captchaInput"
             placeholder="Masukkan kode captcha di atas"
           />
           <div class="error-msg" th:if="${errorCaptcha}">
             ⚠ <span th:text="${errorCaptcha}"></span>
-                </div>
-                <div class="field-hint">
-                    Kode tidak case sensitive, klik refresh jika(@#@)
-                </div>
-            </div>
+          </div>
+          <div class="field-hint">Kode tidak case sensitive</div>
+        </div>
 
-            <!-- TOMBOL DAFTAR -->
-            <button type="submit" class="btn-daftar">Daftar Sekarang</button>
-        </form>
+        <!-- TOMBOL DAFTAR — disabled by default -->
+        <button type="submit" class="btn-daftar" id="btnDaftar" disabled>
+          Daftar Sekarang
+        </button>
+      </form>
     </div>
 
     <script>
-        // ===== CAPTCHA GENERATOR =====
-        // Karakter yang digunakan untuk captcha (mudah dibaca)
-        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      // ===== CAPTCHA =====
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-        function buatCaptchaBaru() {
-            let kode = "";
-            for (let i = 0; i < 6; i++) {
-                kode += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return kode;
+      function buatCaptchaBaru() {
+        let kode = "";
+        for (let i = 0; i < 6; i++) {
+          kode += chars.charAt(Math.floor(Math.random() * chars.length));
         }
+        return kode;
+      }
 
-        function refreshCaptcha() {
-            const kode = buatCaptchaBaru();
-            document.getElementById("captchaDisplay").textContent = kode;
-            document.getElementById("captchaSession").value = kode;
+      function refreshCaptcha() {
+        const kode = buatCaptchaBaru();
+        document.getElementById("captchaDisplay").textContent = kode;
+        document.getElementById("captchaSession").value = kode;
+        // Kosongkan input captcha saat refresh agar tidak confusing
+        document.getElementById("captchaInput").value = "";
+        cekFormLengkap();
+      }
+
+      window.onload = function () {
+        refreshCaptcha();
+        cekFormLengkap();
+      };
+
+      // ===== VALIDASI REAL-TIME =====
+      // Field untuk progress bar (tanpa captcha)
+      const fieldsProgress = [
+        "namaLengkap",
+        "nim",
+        "email",
+        "nomorTelepon",
+        "tanggalLahir",
+        "programStudi",
+        "alamatLengkap",
+        "asalSekolah",
+      ];
+
+      // Semua field termasuk captcha untuk enable tombol
+      const fieldsAll = [...fieldsProgress, "captchaInput"];
+
+      fieldsAll.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener("input", cekFormLengkap);
+        if (el) el.addEventListener("change", cekFormLengkap);
+      });
+
+      function isValid(id) {
+        const el = document.getElementById(id);
+        if (!el) return false;
+        const val = el.value.trim();
+
+        switch (id) {
+          case "namaLengkap":
+            return val.length >= 4;
+          case "nim":
+            return /^\d{10}$/.test(val);
+          case "email":
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+          case "nomorTelepon":
+            return /^(08|62)\d{8,11}$/.test(val);
+          case "tanggalLahir": {
+            if (!val) return false;
+            const lahir = new Date(val);
+            const today = new Date();
+            let umur = today.getFullYear() - lahir.getFullYear();
+            const bulan = today.getMonth() - lahir.getMonth();
+            if (bulan < 0 || (bulan === 0 && today.getDate() < lahir.getDate()))
+              umur--;
+            return umur >= 18;
+          }
+          case "programStudi":
+            return val !== "";
+          case "alamatLengkap":
+            return val.length >= 15;
+          case "asalSekolah":
+            return val.length >= 3;
+          case "captchaInput": {
+            const captchaSession =
+              document.getElementById("captchaSession").value;
+            return (
+              val.toUpperCase() === captchaSession.toUpperCase() &&
+              val.length > 0
+            );
+          }
+          default:
+            return val.length > 0;
         }
+      }
 
-        // Buat captcha baru saat halaman pertama kali dibuka
-        window.onload = function() {
-            refreshCaptcha();
-        };
+      function cekFormLengkap() {
+        // Progress bar hanya dari 8 field utama (tanpa captcha)
+        let validCount = 0;
+        fieldsProgress.forEach((id) => {
+          if (isValid(id)) validCount++;
+        });
+
+        const persen = Math.round((validCount / fieldsProgress.length) * 100);
+
+        document.getElementById("progressFill").style.width = persen + "%";
+        document.getElementById("progressPercent").textContent = persen + "%";
+
+        const hints = [
+          "Mulai mengisi form untuk melihat progress...",
+          "Terus lengkapi data Anda...",
+          "Sudah setengah jalan, lanjutkan! 💪",
+          "Hampir selesai, masukkan kode captcha!",
+          "Semua data lengkap! Masukkan captcha lalu submit ✅",
+        ];
+        const hintIndex = Math.floor((persen / 100) * (hints.length - 1));
+        document.getElementById("progressHint").textContent = hints[hintIndex];
+
+        // Tombol aktif hanya jika SEMUA field valid termasuk captcha
+        const allValid = fieldsAll.every((id) => isValid(id));
+        document.getElementById("btnDaftar").disabled = !allValid;
+      }
     </script>
-</body>
-
+  </body>
 </html>

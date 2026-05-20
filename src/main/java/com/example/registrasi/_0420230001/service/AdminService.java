@@ -1,26 +1,24 @@
 package com.example.registrasi._0420230001.service;
+
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.registrasi._0420230001.model.Admin;
-import com.example.registrasi._0420230001.repository.AdminRepository;
 
-/**
- * Service layer untuk logika autentikasi admin.
- */
 @Service
 public class AdminService {
 
-    @Autowired
-    private AdminRepository adminRepository;
+    private static final String DEFAULT_USERNAME = "admin";
+    private static final String DEFAULT_PASSWORD = "admin123";
 
-    /**
-     * Validasi login admin berdasarkan username dan password.
-     * Mengembalikan Optional<Admin> jika cocok.
-     */
     public Optional<Admin> login(String username, String password) {
-        return adminRepository.findByUsernameAndPassword(username, password);
+        if (DEFAULT_USERNAME.equals(username) && DEFAULT_PASSWORD.equals(password)) {
+            Admin admin = new Admin();
+            admin.setUsername(username);
+            admin.setPassword(password);
+            return Optional.of(admin);
+        }
+        return Optional.empty();
     }
 }
